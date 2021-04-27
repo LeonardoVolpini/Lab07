@@ -16,4 +16,7 @@ public class Model {
 		return podao.getNercList();
 	}
 
+	//public List<PowerOutage> trovaWorstCase(Nerc nerc, int anni, int ore) {
+		
+	//}
 }

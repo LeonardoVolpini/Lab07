@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.polito.tdp.poweroutages.model.Nerc;
+import it.polito.tdp.poweroutages.model.PowerOutage;
 
 public class PowerOutageDAO {
 	
@@ -35,5 +36,29 @@ public class PowerOutageDAO {
 		return nercList;
 	}
 	
-
+	public List<PowerOutage> getAllPowerOutage(){
+		String sql = "SELECT id, nerc_id, customers_affected, date_event_began, date_event_finished FROM poweroutages";
+		List<PowerOutage> list= new ArrayList<>();
+		try {
+			Connection conn= ConnectDB.getConnection();
+			PreparedStatement st= conn.prepareStatement(sql);
+			ResultSet rs= st.executeQuery();
+			while(rs.next()) {
+				Nerc nerc= new Nerc(rs.getInt("nerc_id"),null);
+				PowerOutage p = new PowerOutage(rs.getInt("id"),rs.getInt("customers_affected"),
+						rs.getDate("date_event_began"),rs.getDate("date_event_finished"),nerc);
+				list.add(p);
+			}
+			List<Nerc> temp= this.getNercList();
+			for (Nerc n : temp) {
+				for (PowerOutage p : list)
+					if (n.equals(p.getNerc()))
+						p.setNerc(n);
+			}
+			conn.close();
+		} catch(SQLException e) {
+			throw new RuntimeException("Errore DB",e);
+		}
+		return list;
+	}
 }
