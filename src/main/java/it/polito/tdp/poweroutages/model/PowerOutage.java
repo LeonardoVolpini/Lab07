@@ -1,25 +1,26 @@
 package it.polito.tdp.poweroutages.model;
 
-import java.sql.Date;
-
-//import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneOffset;
 
 public class PowerOutage {
 
 	private int customersAffected;
-	//private LocalDateTime inizio;
-	//private LocalDateTime fine;
-	private Date inizio;
-	private Date fine;
+	private LocalDateTime inizio;
+	private LocalDateTime fine;
 	private int id;
 	private Nerc nerc;
+	private Duration durata;
 	
-	public PowerOutage(int id, int customersAffected, Date inizio, Date fine, Nerc nerc) {
+	public PowerOutage(int id, int customersAffected, LocalDateTime inizio, LocalDateTime fine, Nerc nerc) {
 		this.id=id;
 		this.customersAffected = customersAffected;
 		this.inizio = inizio;
 		this.fine = fine;
 		this.nerc=nerc;
+		this.durata = Duration.between(inizio, fine);
 	}
 
 	public int getId() {
@@ -38,19 +39,19 @@ public class PowerOutage {
 		this.customersAffected = customersAffected;
 	}
 
-	public Date getInizio() {
+	public LocalDateTime getInizio() {
 		return inizio;
 	}
 
-	public void setInizio(Date inizio) {
+	public void setInizio(LocalDateTime inizio) {
 		this.inizio = inizio;
 	}
 
-	public Date getFine() {
+	public LocalDateTime getFine() {
 		return fine;
 	}
 
-	public void setFine(Date fine) {
+	public void setFine(LocalDateTime fine) {
 		this.fine = fine;
 	}
 
@@ -60,6 +61,10 @@ public class PowerOutage {
 
 	public void setNerc(Nerc nerc) {
 		this.nerc = nerc;
+	}
+
+	public long getDurata() {
+		return durata.toHours();
 	}
 
 	@Override
@@ -86,8 +91,7 @@ public class PowerOutage {
 
 	@Override
 	public String toString() {
-		return "NERC: "+nerc.getValue()+"; Customers afflitti: "+this.customersAffected+"; iniziato il: "+inizio+"; finito il: "+fine;
+		return "NERC: "+nerc.getValue()+"; Customers afflitti: "+this.customersAffected+"; iniziato il: "+inizio+"; finito il: "+fine+"; durato: "+durata+" ore";
 	}
-	
-	
+
 }

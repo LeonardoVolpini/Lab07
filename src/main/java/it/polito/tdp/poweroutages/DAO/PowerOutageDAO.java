@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +46,9 @@ public class PowerOutageDAO {
 			ResultSet rs= st.executeQuery();
 			while(rs.next()) {
 				Nerc nerc= new Nerc(rs.getInt("nerc_id"),null);
-				PowerOutage p = new PowerOutage(rs.getInt("id"),rs.getInt("customers_affected"),
-						rs.getDate("date_event_began"),rs.getDate("date_event_finished"),nerc);
+				LocalDateTime inizio= rs.getTimestamp("date_event_began").toLocalDateTime();
+				LocalDateTime fine= rs.getTimestamp("date_event_finished").toLocalDateTime();
+				PowerOutage p = new PowerOutage(rs.getInt("id"),rs.getInt("customers_affected"),inizio,fine,nerc);
 				list.add(p);
 			}
 			List<Nerc> temp= this.getNercList();
@@ -54,6 +56,30 @@ public class PowerOutageDAO {
 				for (PowerOutage p : list)
 					if (n.equals(p.getNerc()))
 						p.setNerc(n);
+			}
+			conn.close();
+		} catch(SQLException e) {
+			throw new RuntimeException("Errore DB",e);
+		}
+		return list;
+	}
+	
+	public List<PowerOutage> getPowerOutageByNerc (Nerc nerc){
+		String sql= "SELECT id, nerc_id, customers_affected, date_event_began, date_event_finished "
+				+ "FROM poweroutages "
+				+ "WHERE nerc_id=? "
+				+ "ORDER BY YEAR(date_event_began) ASC";
+		List<PowerOutage> list= new ArrayList<>();
+		try {
+			Connection conn= ConnectDB.getConnection();
+			PreparedStatement st= conn.prepareStatement(sql);
+			st.setInt(1, nerc.getId());
+			ResultSet rs= st.executeQuery();
+			while(rs.next()) {
+				LocalDateTime inizio= rs.getTimestamp("date_event_began").toLocalDateTime();
+				LocalDateTime fine= rs.getTimestamp("date_event_finished").toLocalDateTime();
+				PowerOutage p = new PowerOutage(rs.getInt("id"),rs.getInt("customers_affected"),inizio,fine,nerc);
+				list.add(p);
 			}
 			conn.close();
 		} catch(SQLException e) {
