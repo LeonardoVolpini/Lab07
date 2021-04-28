@@ -64,16 +64,18 @@ public class PowerOutageDAO {
 		return list;
 	}
 	
-	public List<PowerOutage> getPowerOutageByNerc (Nerc nerc){
+	public List<PowerOutage> getPowerOutageByNerc (Nerc nerc, long maxOre){
+		long oreInSec= maxOre*3600;
 		String sql= "SELECT id, nerc_id, customers_affected, date_event_began, date_event_finished "
 				+ "FROM poweroutages "
-				+ "WHERE nerc_id=? "
+				+ "WHERE nerc_id=? AND (to_seconds(date_event_finished) - to_seconds(date_event_began) <= ?)"
 				+ "ORDER BY YEAR(date_event_began) ASC";
 		List<PowerOutage> list= new ArrayList<>();
 		try {
 			Connection conn= ConnectDB.getConnection();
 			PreparedStatement st= conn.prepareStatement(sql);
 			st.setInt(1, nerc.getId());
+			st.setLong(2, oreInSec);
 			ResultSet rs= st.executeQuery();
 			while(rs.next()) {
 				LocalDateTime inizio= rs.getTimestamp("date_event_began").toLocalDateTime();

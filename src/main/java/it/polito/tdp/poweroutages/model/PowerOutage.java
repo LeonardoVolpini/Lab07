@@ -91,7 +91,7 @@ public class PowerOutage {
 
 	@Override
 	public String toString() {
-		return "NERC: "+nerc.getValue()+"; Customers afflitti: "+this.customersAffected+"; iniziato il: "+inizio+"; finito il: "+fine+"; durato: "+durata+" ore";
+		return "iniziato il: "+inizio+"; finito il: "+fine+"; durato: "+this.getDurata()+" ore ; Customers afflitti: "+this.customersAffected+"\n";
 	}
 
 }

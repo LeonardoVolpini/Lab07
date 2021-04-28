@@ -6,8 +6,11 @@ package it.polito.tdp.poweroutages;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.Set;
+
 import it.polito.tdp.poweroutages.model.Model;
 import it.polito.tdp.poweroutages.model.Nerc;
+import it.polito.tdp.poweroutages.model.PowerOutage;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -39,6 +42,44 @@ public class FXMLController {
     @FXML
     void doRun(ActionEvent event) {
     	txtResult.clear();
+    	Nerc nerc= this.cmbNerc.getValue();
+    	if (nerc==null) {
+    		this.txtResult.setText("Selezionare un Nerc");
+    		return;
+    	}
+    	
+    	String anni= this.txtYears.getText();
+    	if (anni.isEmpty()) {
+    		this.txtResult.setText("Inserire un numero massimo di anni");
+    		return;
+    	}
+    	int years;
+    	try {
+    		years= Integer.parseInt(anni);
+    	} catch(NumberFormatException e){
+    		this.txtResult.setText("Inserire un valore numerico come anni");
+    		return;
+    	}
+    	
+    	String ore= this.txtHours.getText();
+    	if (ore.isEmpty()) {
+    		this.txtResult.setText("Inserire un numero massimo di ore");
+    		return;
+    	}
+    	long hours;
+    	try {
+    		hours= Long.parseLong(ore);
+    	} catch (NumberFormatException e) {
+    		this.txtResult.setText("Inserire un valore numerico come ore");
+    		return;
+    	}
+    	
+    	Set<PowerOutage> result=this.model.trovaWorstCase(nerc.getId(), years, hours);
+    	String s="";
+    	for (PowerOutage p: result) {
+    		s+=p.toString();
+    	}
+    	this.txtResult.setText(s);
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete

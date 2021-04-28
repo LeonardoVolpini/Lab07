@@ -9,7 +9,7 @@ import it.polito.tdp.poweroutages.DAO.PowerOutageDAO;
 public class Model {
 	
 	PowerOutageDAO podao;
-	private Set<PowerOutage> best;
+	private Set<PowerOutage> worst;
 	private List<PowerOutage> partenza;
 	private int totCustomersBest;
 	private long totOreGuasto;
@@ -22,9 +22,9 @@ public class Model {
 		return podao.getNercList();
 	}
 
-	public List<PowerOutage> getAllPowerOutage(){
+	/*public List<PowerOutage> getAllPowerOutage(){
 		return this.podao.getAllPowerOutage();
-	}
+	}*/
 	
 	public Set<PowerOutage> trovaWorstCase(int idNerc, int anni, long ore) {
 		Nerc nerc=null;
@@ -32,13 +32,14 @@ public class Model {
 			if (n.getId()==idNerc) {
 				nerc= new Nerc(idNerc,n.getValue());
 			}
-		this.partenza= this.podao.getPowerOutageByNerc(nerc);
+		
+		this.partenza= this.podao.getPowerOutageByNerc(nerc,ore);
 		Set<PowerOutage> parziale= new HashSet<PowerOutage>();
-		this.best= new HashSet<PowerOutage>();
+		this.worst= new HashSet<PowerOutage>();
 		this.totCustomersBest=0;
 		
 		ricorsione(parziale,0,ore,anni);
-		return this.best;
+		return this.worst;
 	}
 	
 	private void ricorsione(Set<PowerOutage> parziale, int livello, long maxOre, int maxAnni) {
@@ -47,7 +48,7 @@ public class Model {
 			return; 
 		int customers= this.calcolaTotCustomers(parziale);
 		if (customers>this.totCustomersBest) { //controllo se e' la soluzione con piu utenti colpiti
-			this.best= new HashSet<>(parziale);
+			this.worst= new HashSet<>(parziale);
 			this.totCustomersBest=customers;
 			this.totOreGuasto = ore;
 		}
@@ -60,7 +61,7 @@ public class Model {
 			ricorsione(parziale,livello+1,maxOre,maxAnni);
 		}
 		parziale.remove(partenza.get(livello)); //backtracking
-		ricorsione(parziale,livello,maxOre,maxAnni); //provo anche senza questo blackout
+		ricorsione(parziale,livello+1,maxOre,maxAnni); //provo anche senza questo blackout 
 	}
 	
 	private boolean diffAnniValida(Set<PowerOutage> parziale, int maxAnni) {
